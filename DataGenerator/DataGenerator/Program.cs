@@ -66,9 +66,9 @@ namespace DataGenerator
                 }
             }
             Console.WriteLine();
-            Console.WriteLine("Tasks Distribution...");
+            //Console.WriteLine("Tasks Distribution...");
             var tasksDistribution = CreateModelService.CreateDistribution(PROJECTS_COUNT, TASKS_COUNT);
-            Console.WriteLine("Time Accounting Distribution...");
+            //Console.WriteLine("Time Accounting Distribution...");
             var timeAccountingDistribution = CreateModelService.CreateDistribution(TASKS_COUNT, TIME_ACCOUNTING_COUNT);
             timeAccountingDistribution.Insert(0, 0);
             var timeAccountingList = timeAccountingDistribution.Skip(1).Zip(timeAccountingDistribution, (f, s) => f - s).ToList();
@@ -77,7 +77,6 @@ namespace DataGenerator
             {
                 var pmsList = users.Where(p => p.position.Contains("Developer")).ToList();
                 var ser = new DataContractJsonSerializer(typeof(Project));
-                List<Project> buf = new List<Project>();
                 for (var i = 0; i < PROJECTS_COUNT; i++)
                 {
                     List<int> timeAccountings = i > 0
@@ -89,24 +88,18 @@ namespace DataGenerator
                         users,
                         timeAccountings,
                         pmsList);
-                    buf.Add(project);
-
-                    if (buf.Count == 100 || i == PROJECTS_COUNT - 1)
+                    using (var ms = new MemoryStream())
                     {
-
-                        foreach (var p in buf)
+                        ser.WriteObject(ms, project);
+                        ms.Position = 0;
+                        using (var sr = new StreamReader(ms))
                         {
-                            using (var ms = new MemoryStream())
-                            {
-                                ser.WriteObject(ms, p);
-                                ms.Position = 0;
-                                using (var sr = new StreamReader(ms))
-                                {
-                                    projectsFile.WriteLine(sr.ReadToEnd());
-                                }
-                            }
+                            projectsFile.WriteLine(sr.ReadToEnd());
                         }
-                        buf = new List<Project>();
+                    }
+
+                    if ((i + 1) % 100 == 0 || i == PROJECTS_COUNT - 1)
+                    {
                         Console.Write("Projects: {0:F2}% \r", ((i + 1) / (decimal)PROJECTS_COUNT * 100));
                     }
                 }
