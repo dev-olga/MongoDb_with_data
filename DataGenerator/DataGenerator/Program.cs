@@ -7,15 +7,10 @@ namespace DataGenerator
     using System.Linq;
     using System.Runtime.Serialization.Json;
 
-   // using DataGenerator.Models;
-    using System.Threading.Tasks;
-
     using DataGenerator.Models;
     using DataGenerator.Services;
 
     using MongoDB.Bson;
-
-    using Task = System.Threading.Tasks.Task;
 
     class Program
     {
@@ -49,7 +44,7 @@ namespace DataGenerator
                 }
             }
 
-            Console.WriteLine("\r\nSaving users...");
+            Console.WriteLine("\r\nUsers Saving...");
             using (var usersFile = new StreamWriter("users.json"))
             {
                 var ser = new DataContractJsonSerializer(typeof(User));
@@ -66,9 +61,9 @@ namespace DataGenerator
                 }
             }
             Console.WriteLine();
-            //Console.WriteLine("Tasks Distribution...");
+            Console.WriteLine("Tasks Preparing...");
             var tasksDistribution = CreateModelService.CreateDistribution(PROJECTS_COUNT, TASKS_COUNT);
-            //Console.WriteLine("Time Accounting Distribution...");
+            Console.WriteLine("Time Accounting Preparing...");
             var timeAccountingDistribution = CreateModelService.CreateDistribution(TASKS_COUNT, TIME_ACCOUNTING_COUNT);
             timeAccountingDistribution.Insert(0, 0);
             var timeAccountingList = timeAccountingDistribution.Skip(1).Zip(timeAccountingDistribution, (f, s) => f - s).ToList();
@@ -105,8 +100,8 @@ namespace DataGenerator
                 }
             }
 
-            Console.WriteLine("\r\nHappy End ^_^");
-            Console.ReadLine();
+            //Console.WriteLine("\r\nHappy End ^_^");
+            //Console.ReadLine();
         }
     }
 }
